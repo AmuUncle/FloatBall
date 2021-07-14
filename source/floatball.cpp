@@ -9,9 +9,12 @@
 #include <QPropertyAnimation>
 #include <QMouseEvent>
 #include <QTime>
+#include <QProcess>
 
+#ifdef WIN32
 #include <windows.h>
 #include <sysinfoapi.h>
+#endif
 
 const int MAX_WINDOWS_WIDTH = 64;
 const int MIN_WINDOWS_WIDTH = 10;
@@ -328,9 +331,33 @@ void FloatBall::mouseDoubleClickEvent(QMouseEvent *event)
 
 void FloatBall::OnUpdateMemInfo()
 {
+#ifdef WIN32
     MEMORYSTATUSEX memoryInfo;
     memoryInfo.dwLength = sizeof(memoryInfo);
     GlobalMemoryStatusEx(&memoryInfo);
     m_dwMemoryLoad = memoryInfo.dwMemoryLoad;
+#else
+
+    //QProcess用于启动外部程序
+    QProcess process;
+    //执行ls命令
+    process.start("free");
+    //等待命令执行结束
+    process.waitForFinished();
+    //获取命令执行的结果
+    QByteArray result_ = process.readAllStandardOutput();
+
+    QString strRet(result_);
+    if (strRet.split('\n').length() > 1)
+    {
+        QString strMem = strRet.split('\n')[1];
+        strMem = strMem.replace(QRegExp("\\s{1,}"), " ");
+        QStringList strList = strMem.split(' ');
+
+        if (strList.length() > 2)
+            m_dwMemoryLoad = strList[2].toDouble() / strList[1].toDouble() * 100;
+    }
+#endif
+
     update();
 }
