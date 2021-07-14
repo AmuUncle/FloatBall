@@ -26,6 +26,7 @@ FloatBall::FloatBall(QWidget *parent)
     setAttribute(Qt::WA_TranslucentBackground);
     setProperty("canMove", "true");
     setProperty("forbidMoveOtherScreen", "true");
+    setCursor(Qt::PointingHandCursor); //设置鼠标样式
 
     m_dwMemoryLoad = 0;
     m_bIsMini = false;
@@ -117,7 +118,8 @@ void FloatBall::paintEvent(QPaintEvent *event)
     {
         painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing | QPainter::SmoothPixmapTransform | QPainter::Qt4CompatiblePainting);
 
-        QColor boderColor("#5E686B");
+        QColor boderColor("#FFFFFF");
+        boderColor.setAlpha(100);
         QColor bgColor("#FFFFFF");
         QColor brandColor("#56E56C");
         QColor textColor("#333333");
@@ -180,6 +182,13 @@ void FloatBall::paintEvent(QPaintEvent *event)
             int startAngle = 90 * 16;
             int spanAngle = -360 * ((double)m_dwMemoryLoad/100.0) * 16;
             painter.drawPie(rcangle, startAngle, spanAngle);
+
+            painter.save();
+            painter.setPen(brandColor);
+            painter.setBrush(Qt::NoBrush);
+            painter.drawEllipse(rcClient.marginsRemoved(QMargins(0, 0, 0, 0)));
+            painter.drawEllipse(rcClient.marginsRemoved(QMargins(5, 5, 5, 5)));
+            painter.restore();
 
             painter.setBrush(bgColor);
             painter.drawEllipse(rcClient.marginsRemoved(QMargins(5, 5, 5, 5)));
@@ -293,6 +302,12 @@ void FloatBall::timerEvent(QTimerEvent *event)
 
 void FloatBall::enterEvent(QEvent *event)
 {
+    if (m_nLeaveTimerId > -1)
+    {
+        killTimer(m_nLeaveTimerId);
+        m_nLeaveTimerId = -1;
+    }
+
     m_bIsMini = false;
     setFixedSize(MAX_WINDOWS_WIDTH, MAX_WINDOWS_WIDTH);
 
