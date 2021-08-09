@@ -13,8 +13,7 @@
 # 🗺️软件截图
 
 ### 主界面
-![导航](https://gitee.com/hudejie/FloatBall/blob/master/screenshot/demo.gif)
-
+![导航](https://gitee.com/hudejie/FloatBall/blob/master/screenshot/demo.gif
 
 # 📝参考网址
 
